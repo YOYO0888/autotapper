@@ -1,0 +1,9 @@
+<resources>
+    <color name="panel_bg">#E6222222</color>
+    <color name="accent">#00BFA5</color>
+    <color name="danger">#FF5252</color>
+    <color name="crosshair_scroll_start">#00E676</color>
+    <color name="crosshair_scroll_end">#FFD600</color>
+    <color name="crosshair_tap">#FF4081</color>
+    <color name="text_light">#FFFFFF</color>
+</resources>
