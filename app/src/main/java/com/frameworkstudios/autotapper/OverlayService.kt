@@ -14,6 +14,7 @@ import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
+import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
@@ -134,6 +135,10 @@ class OverlayService : Service() {
             }
         })
 
+        makeEditable(editInterval)
+        makeEditable(editTapRadius)
+        makeEditable(editScrollJitter)
+
         fun refreshStatus() {
             val parts = mutableListOf<String>()
             parts.add(if (scrollStart != null && scrollEnd != null) "Scroll ✓" else "Scroll not set")
@@ -225,6 +230,40 @@ class OverlayService : Service() {
         }
 
         refreshStatus()
+    }
+
+    /**
+     * The overlay window is normally FLAG_NOT_FOCUSABLE so it doesn't steal input focus
+     * while you're dragging it or interacting with other apps. But that also blocks the
+     * keyboard from appearing for EditTexts. This makes the window focusable only while
+     * a given field is actually being edited, then restores it afterward.
+     */
+    private fun makeEditable(editText: EditText) {
+        editText.setOnClickListener {
+            setPanelFocusable(true)
+            editText.post {
+                editText.requestFocus()
+                val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+                imm.showSoftInput(editText, InputMethodManager.SHOW_IMPLICIT)
+            }
+        }
+        editText.setOnFocusChangeListener { _, hasFocus ->
+            if (!hasFocus) {
+                val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+                imm.hideSoftInputFromWindow(editText.windowToken, 0)
+                setPanelFocusable(false)
+            }
+        }
+    }
+
+    private fun setPanelFocusable(focusable: Boolean) {
+        if (!::panelParams.isInitialized) return
+        panelParams.flags = if (focusable) {
+            panelParams.flags and WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE.inv()
+        } else {
+            panelParams.flags or WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
+        }
+        runCatching { windowManager.updateViewLayout(panelView, panelParams) }
     }
 
     private fun crosshairCenter(view: CrosshairView): Pair<Float, Float> {
