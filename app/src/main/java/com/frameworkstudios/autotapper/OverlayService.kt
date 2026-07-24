@@ -7,6 +7,8 @@ import android.content.Intent
 import android.graphics.PixelFormat
 import android.os.Build
 import android.os.IBinder
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.MotionEvent
@@ -22,6 +24,10 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlin.math.cos
+import kotlin.math.sin
+import kotlin.math.sqrt
+import kotlin.random.Random
 
 class OverlayService : Service() {
 
@@ -32,11 +38,18 @@ class OverlayService : Service() {
     private var scrollStartCrosshair: CrosshairView? = null
     private var scrollEndCrosshair: CrosshairView? = null
     private var tapCrosshair: CrosshairView? = null
+    private var tapRadiusRing: RadiusRingView? = null
 
     // Saved gesture coordinates, in raw screen pixels.
     private var scrollStart: Pair<Float, Float>? = null
     private var scrollEnd: Pair<Float, Float>? = null
     private var tapPoint: Pair<Float, Float>? = null
+
+    private val overlayWindowType: Int
+        get() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+            WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
+        else
+            @Suppress("DEPRECATION") WindowManager.LayoutParams.TYPE_PHONE
 
     private enum class PositioningMode { NONE, SCROLL, TAP }
     private var positioningMode = PositioningMode.NONE
@@ -57,6 +70,7 @@ class OverlayService : Service() {
         super.onDestroy()
         loopJob?.cancel()
         removeCrosshairs()
+        removeRadiusRing()
         if (::panelView.isInitialized) {
             runCatching { windowManager.removeView(panelView) }
         }
@@ -85,15 +99,10 @@ class OverlayService : Service() {
     private fun showPanel() {
         panelView = LayoutInflater.from(this).inflate(R.layout.overlay_panel, null)
 
-        val overlayType = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
-            WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
-        else
-            @Suppress("DEPRECATION") WindowManager.LayoutParams.TYPE_PHONE
-
         panelParams = WindowManager.LayoutParams(
             WindowManager.LayoutParams.WRAP_CONTENT,
             WindowManager.LayoutParams.WRAP_CONTENT,
-            overlayType,
+            overlayWindowType,
             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
             PixelFormat.TRANSLUCENT
         ).apply {
@@ -114,6 +123,16 @@ class OverlayService : Service() {
         val btnStop = panelView.findViewById<Button>(R.id.btnStop)
         val btnClose = panelView.findViewById<TextView>(R.id.btnClose)
         val editInterval = panelView.findViewById<EditText>(R.id.editInterval)
+        val editTapRadius = panelView.findViewById<EditText>(R.id.editTapRadius)
+        val editScrollJitter = panelView.findViewById<EditText>(R.id.editScrollJitter)
+
+        editTapRadius.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: Editable?) {
+                if (positioningMode == PositioningMode.NONE) updateRadiusRing(editTapRadius)
+            }
+        })
 
         fun refreshStatus() {
             val parts = mutableListOf<String>()
@@ -135,6 +154,7 @@ class OverlayService : Service() {
         btnSetTap.setOnClickListener {
             positioningMode = PositioningMode.TAP
             removeCrosshairs()
+            removeRadiusRing()
             addTapCrosshair()
             btnConfirm.visibility = View.VISIBLE
             statusText.text = "Drag the pink point onto the button, then Confirm."
@@ -151,14 +171,18 @@ class OverlayService : Service() {
                 }
                 PositioningMode.NONE -> {}
             }
+            val wasTap = positioningMode == PositioningMode.TAP
             positioningMode = PositioningMode.NONE
             removeCrosshairs()
             btnConfirm.visibility = View.GONE
+            if (wasTap) updateRadiusRing(editTapRadius)
             refreshStatus()
         }
 
         btnStart.setOnClickListener {
             val interval = editInterval.text.toString().toLongOrNull() ?: 1500L
+            val tapRadius = editTapRadius.text.toString().toIntOrNull()?.coerceAtLeast(0) ?: 0
+            val scrollJitter = editScrollJitter.text.toString().toIntOrNull()?.coerceAtLeast(0) ?: 0
             val start = scrollStart
             val end = scrollEnd
             val tap = tapPoint
@@ -177,9 +201,12 @@ class OverlayService : Service() {
                     return@launch
                 }
                 while (isActive) {
-                    service.performSwipe(start.first, start.second, end.first, end.second)
+                    val (sx, sy) = randomPointInRadius(start, scrollJitter)
+                    val (ex, ey) = randomPointInRadius(end, scrollJitter)
+                    service.performSwipe(sx, sy, ex, ey)
                     delay(250)
-                    service.performTap(tap.first, tap.second)
+                    val (tapX, tapY) = randomPointInRadius(tap, tapRadius)
+                    service.performTap(tapX, tapY)
                     delay(interval)
                 }
             }
@@ -206,6 +233,54 @@ class OverlayService : Service() {
             params.x + view.width / 2f,
             params.y + view.height / 2f
         )
+    }
+
+    /** Uniformly samples a point inside a circle of [radiusPx] centered on [center]. */
+    private fun randomPointInRadius(center: Pair<Float, Float>, radiusPx: Int): Pair<Float, Float> {
+        if (radiusPx <= 0) return center
+        val angle = Random.nextDouble(0.0, 2 * Math.PI)
+        val r = radiusPx * sqrt(Random.nextDouble())
+        val dx = (r * cos(angle)).toFloat()
+        val dy = (r * sin(angle)).toFloat()
+        return Pair(center.first + dx, center.second + dy)
+    }
+
+    private fun updateRadiusRing(editTapRadius: EditText) {
+        val tap = tapPoint
+        val radiusPx = editTapRadius.text.toString().toIntOrNull()?.coerceAtLeast(0) ?: 0
+        if (tap == null || radiusPx <= 0) {
+            removeRadiusRing()
+            return
+        }
+        val size = radiusPx * 2
+        val existing = tapRadiusRing
+        if (existing == null) {
+            val ring = RadiusRingView(this)
+            val params = WindowManager.LayoutParams(
+                size, size,
+                overlayWindowType,
+                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+                PixelFormat.TRANSLUCENT
+            ).apply {
+                gravity = Gravity.TOP or Gravity.START
+                x = (tap.first - radiusPx).toInt()
+                y = (tap.second - radiusPx).toInt()
+            }
+            windowManager.addView(ring, params)
+            tapRadiusRing = ring
+        } else {
+            val params = existing.layoutParams as WindowManager.LayoutParams
+            params.width = size
+            params.height = size
+            params.x = (tap.first - radiusPx).toInt()
+            params.y = (tap.second - radiusPx).toInt()
+            windowManager.updateViewLayout(existing, params)
+        }
+    }
+
+    private fun removeRadiusRing() {
+        tapRadiusRing?.let { runCatching { windowManager.removeView(it) } }
+        tapRadiusRing = null
     }
 
     private fun setupDrag() {
@@ -260,10 +335,7 @@ class OverlayService : Service() {
         val crosshair = CrosshairView(this, color, label)
         val params = WindowManager.LayoutParams(
             size, size,
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
-                WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
-            else
-                @Suppress("DEPRECATION") WindowManager.LayoutParams.TYPE_PHONE,
+            overlayWindowType,
             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
             PixelFormat.TRANSLUCENT
         ).apply {
