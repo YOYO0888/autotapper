@@ -18,7 +18,6 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
-import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -59,7 +58,7 @@ class OverlayService : Service() {
     private val serviceScope = CoroutineScope(Dispatchers.Main)
     private var loopJob: Job? = null
 
-    // Tunable timing/radius state, all driven by the +/- panel buttons.
+    // Tunable timing/radius state
     private var loopIntervalMs = 1500L
     private var slideSpeedMs = 300L
     private var clickDelayMs = 600L               // increased from 300
@@ -439,9 +438,6 @@ class OverlayService : Service() {
     }
 
     // ---------- Radius ring ----------
-    private fun updateRadiusRing() { /* unchanged */ }
-    private fun removeRadiusRing() { /* unchanged */ }
-
     private fun updateRadiusRing() {
         val tap = tapPoint ?: run { removeRadiusRing(); return }
         if (tapRadiusPx <= 0) { removeRadiusRing(); return }
@@ -504,7 +500,7 @@ class OverlayService : Service() {
         }
     }
 
-    // ---------- Crosshairs (unchanged but included for completeness) ----------
+    // ---------- Crosshairs ----------
     private fun addScrollCrosshairs() {
         scrollStartCrosshair = addCrosshair(android.graphics.Color.parseColor("#00E676"), "START", 200, 900)
         scrollEndCrosshair = addCrosshair(android.graphics.Color.parseColor("#FFD600"), "END", 200, 400)
