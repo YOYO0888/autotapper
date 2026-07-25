@@ -6,9 +6,7 @@ import android.app.Service
 import android.content.Intent
 import android.graphics.PixelFormat
 import android.os.Build
-import android.os.Handler
 import android.os.IBinder
-import android.os.Looper
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.MotionEvent
@@ -22,7 +20,6 @@ import androidx.core.app.NotificationCompat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -42,6 +39,7 @@ class OverlayService : Service() {
     private var tapCrosshair: CrosshairView? = null
     private var tapRadiusRing: RadiusRingView? = null
 
+    // Saved gesture coordinates, in raw screen pixels.
     private var scrollStart: Pair<Float, Float>? = null
     private var scrollEnd: Pair<Float, Float>? = null
     private var tapPoint: Pair<Float, Float>? = null
@@ -58,18 +56,13 @@ class OverlayService : Service() {
     private val serviceScope = CoroutineScope(Dispatchers.Main)
     private var loopJob: Job? = null
 
-    // Tunable timing/radius state
+    // Tunable timing/radius state, all driven by the +/- panel buttons.
     private var loopIntervalMs = 1500L
     private var slideSpeedMs = 300L
-    private var clickDelayMs = 600L               // increased from 300
+    private var clickDelayMs = 300L
     private var tapRadiusPx = 0
     private var tapCount = 1
     private var tapGapMs = 150L
-    private var tapDurationMs = 80L               // new: tap press duration
-
-    // Visual feedback overlay for tap position
-    private var tapIndicator: View? = null
-    private val handler = Handler(Looper.getMainLooper())
 
     override fun onBind(intent: Intent?): IBinder? = null
 
@@ -82,11 +75,9 @@ class OverlayService : Service() {
 
     override fun onDestroy() {
         super.onDestroy()
-        serviceScope.cancel()                     // fix leak
         loopJob?.cancel()
         removeCrosshairs()
         removeRadiusRing()
-        removeTapIndicator()
         if (::panelView.isInitialized) {
             runCatching { windowManager.removeView(panelView) }
         }
@@ -163,10 +154,6 @@ class OverlayService : Service() {
         val btnTapGapPlus = panelView.findViewById<Button>(R.id.btnTapGapPlus)
         val tvTapGapValue = panelView.findViewById<TextView>(R.id.tvTapGapValue)
 
-        val btnTapDurationMinus = panelView.findViewById<Button>(R.id.btnTapDurationMinus)
-        val btnTapDurationPlus = panelView.findViewById<Button>(R.id.btnTapDurationPlus)
-        val tvTapDurationValue = panelView.findViewById<TextView>(R.id.tvTapDurationValue)
-
         val editScrollJitter = panelView.findViewById<EditText>(R.id.editScrollJitter)
 
         tvIntervalValue.text = loopIntervalMs.toString()
@@ -175,7 +162,6 @@ class OverlayService : Service() {
         tvRadiusValue.text = tapRadiusPx.toString()
         tvTapCountValue.text = tapCount.toString()
         tvTapGapValue.text = tapGapMs.toString()
-        tvTapDurationValue.text = tapDurationMs.toString()
 
         btnIntervalMinus.setOnClickListener {
             loopIntervalMs = (loopIntervalMs - 250).coerceAtLeast(100)
@@ -231,15 +217,6 @@ class OverlayService : Service() {
         btnTapGapPlus.setOnClickListener {
             tapGapMs = (tapGapMs + 50).coerceAtMost(2000)
             tvTapGapValue.text = tapGapMs.toString()
-        }
-
-        btnTapDurationMinus.setOnClickListener {
-            tapDurationMs = (tapDurationMs - 10).coerceAtLeast(30)
-            tvTapDurationValue.text = tapDurationMs.toString()
-        }
-        btnTapDurationPlus.setOnClickListener {
-            tapDurationMs = (tapDurationMs + 10).coerceAtMost(500)
-            tvTapDurationValue.text = tapDurationMs.toString()
         }
 
         makeEditable(editScrollJitter)
@@ -323,14 +300,13 @@ class OverlayService : Service() {
                         val (ex, ey) = randomPointInRadius(end, scrollJitter)
                         service.performSwipe(sx, sy, ex, ey, durationMs = slideSpeedMs)
 
-                        // 2. Wait for UI to settle
+                        // 2. Wait for content to settle
                         delay(clickDelayMs)
 
-                        // 3. Then tap (repeated tapCount times)
+                        // 3. Then tap (repeated tapCount times, spread by tapGapMs, e.g. tick-tick-tick)
                         for (i in 1..tapCount) {
                             val (tapX, tapY) = randomPointInRadius(tap, tapRadiusPx)
-                            service.performTap(tapX, tapY, durationMs = tapDurationMs)
-                            showTapIndicator(tapX, tapY)   // flash where we tapped
+                            service.performTap(tapX, tapY)
                             if (i < tapCount) delay(tapGapMs)
                         }
 
@@ -361,37 +337,12 @@ class OverlayService : Service() {
         refreshStatus()
     }
 
-    // ---------- Tap indicator flash ----------
-    private fun showTapIndicator(x: Float, y: Float) {
-        handler.post {
-            removeTapIndicator()
-            val indicator = View(this).apply {
-                setBackgroundColor(0x80FF4081.toInt())
-            }
-            val size = 20
-            val params = WindowManager.LayoutParams(
-                size, size,
-                overlayWindowType,
-                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
-                PixelFormat.TRANSLUCENT
-            ).apply {
-                gravity = Gravity.TOP or Gravity.START
-                this.x = (x - size / 2).toInt()
-                this.y = (y - size / 2).toInt()
-            }
-            windowManager.addView(indicator, params)
-            tapIndicator = indicator
-            // remove after 200ms
-            handler.postDelayed({ removeTapIndicator() }, 200)
-        }
-    }
-
-    private fun removeTapIndicator() {
-        tapIndicator?.let { runCatching { windowManager.removeView(it) } }
-        tapIndicator = null
-    }
-
-    // ---------- Keyboard helpers ----------
+    /**
+     * The overlay window is normally FLAG_NOT_FOCUSABLE so it doesn't steal input focus
+     * while you're dragging it or interacting with other apps. But that also blocks the
+     * keyboard from appearing for EditTexts. This makes the window focusable only while
+     * a given field is actually being edited, then restores it afterward.
+     */
     private fun makeEditable(editText: EditText) {
         editText.setOnClickListener {
             setPanelFocusable(true)
@@ -428,6 +379,7 @@ class OverlayService : Service() {
         )
     }
 
+    /** Uniformly samples a point inside a circle of [radiusPx] centered on [center]. */
     private fun randomPointInRadius(center: Pair<Float, Float>, radiusPx: Int): Pair<Float, Float> {
         if (radiusPx <= 0) return center
         val angle = Random.nextDouble(0.0, 2 * Math.PI)
@@ -437,10 +389,12 @@ class OverlayService : Service() {
         return Pair(center.first + dx, center.second + dy)
     }
 
-    // ---------- Radius ring ----------
     private fun updateRadiusRing() {
-        val tap = tapPoint ?: run { removeRadiusRing(); return }
-        if (tapRadiusPx <= 0) { removeRadiusRing(); return }
+        val tap = tapPoint
+        if (tap == null || tapRadiusPx <= 0) {
+            removeRadiusRing()
+            return
+        }
         val size = tapRadiusPx * 2
         val existing = tapRadiusRing
         if (existing == null) {
@@ -472,7 +426,6 @@ class OverlayService : Service() {
         tapRadiusRing = null
     }
 
-    // ---------- Drag ----------
     private fun setupDrag() {
         val dragHandle = panelView.findViewById<TextView>(R.id.dragHandle)
         var initialX = 0
@@ -501,30 +454,45 @@ class OverlayService : Service() {
     }
 
     // ---------- Crosshairs ----------
+
     private fun addScrollCrosshairs() {
-        scrollStartCrosshair = addCrosshair(android.graphics.Color.parseColor("#00E676"), "START", 200, 900)
-        scrollEndCrosshair = addCrosshair(android.graphics.Color.parseColor("#FFD600"), "END", 200, 400)
+        scrollStartCrosshair = addCrosshair(
+            android.graphics.Color.parseColor("#00E676"), "START",
+            initialX = 200, initialY = 900
+        )
+        scrollEndCrosshair = addCrosshair(
+            android.graphics.Color.parseColor("#FFD600"), "END",
+            initialX = 200, initialY = 400
+        )
     }
 
     private fun addTapCrosshair() {
-        tapCrosshair = addCrosshair(android.graphics.Color.parseColor("#FF4081"), "TAP", 400, 1200)
+        tapCrosshair = addCrosshair(
+            android.graphics.Color.parseColor("#FF4081"), "TAP",
+            initialX = 400, initialY = 1200
+        )
     }
 
     private fun addCrosshair(color: Int, label: String, initialX: Int, initialY: Int): CrosshairView {
         val size = 140
         val crosshair = CrosshairView(this, color, label)
         val params = WindowManager.LayoutParams(
-            size, size, overlayWindowType,
-            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE, PixelFormat.TRANSLUCENT
+            size, size,
+            overlayWindowType,
+            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+            PixelFormat.TRANSLUCENT
         ).apply {
             gravity = Gravity.TOP or Gravity.START
-            x = initialX; y = initialY
+            x = initialX
+            y = initialY
         }
+
         crosshair.onMoved = { rawX, rawY ->
             params.x = (rawX - size / 2f).toInt()
             params.y = (rawY - size / 2f).toInt()
             windowManager.updateViewLayout(crosshair, params)
         }
+
         windowManager.addView(crosshair, params)
         return crosshair
     }
@@ -533,6 +501,8 @@ class OverlayService : Service() {
         scrollStartCrosshair?.let { runCatching { windowManager.removeView(it) } }
         scrollEndCrosshair?.let { runCatching { windowManager.removeView(it) } }
         tapCrosshair?.let { runCatching { windowManager.removeView(it) } }
-        scrollStartCrosshair = null; scrollEndCrosshair = null; tapCrosshair = null
+        scrollStartCrosshair = null
+        scrollEndCrosshair = null
+        tapCrosshair = null
     }
 }
