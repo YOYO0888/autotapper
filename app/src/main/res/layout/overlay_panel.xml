@@ -258,6 +258,58 @@
         android:textSize="10sp"
         android:alpha="0.7" />
 
+    <!-- Tap count: how many times to tap per cycle -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginTop="4dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Tap count:"
+            android:textColor="@color/text_light"
+            android:textSize="12sp" />
+
+        <Button
+            android:id="@+id/btnTapCountMinus"
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="40dp"
+            android:layout_height="wrap_content"
+            android:minWidth="0dp"
+            android:padding="0dp"
+            android:text="−" />
+
+        <TextView
+            android:id="@+id/tvTapCountValue"
+            android:layout_width="60dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="1"
+            android:textColor="@color/text_light"
+            android:textSize="13sp" />
+
+        <Button
+            android:id="@+id/btnTapCountPlus"
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="40dp"
+            android:layout_height="wrap_content"
+            android:minWidth="0dp"
+            android:padding="0dp"
+            android:text="+" />
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Taps in a row per cycle, e.g. tick-tick-tick"
+        android:textColor="@color/text_light"
+        android:textSize="10sp"
+        android:alpha="0.7" />
+
     <!-- Scroll jitter: keeps a manual number field since it's used less often -->
     <LinearLayout
         android:layout_width="match_parent"
