@@ -314,7 +314,8 @@ class OverlayService : Service() {
                     } catch (e: Exception) {
                         statusText.text = "Gesture error, retrying…"
                     }
-                    delay(loopIntervalMs)
+                    val randomOffset = Random.nextLong(-250, 250)
+                    delay((loopIntervalMs + randomOffset).coerceAtLeast(100))
                 }
                 btnStart.isEnabled = scrollStart != null && scrollEnd != null && tapPoint != null
                 btnStop.isEnabled = false
