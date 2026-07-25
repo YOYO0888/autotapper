@@ -87,9 +87,32 @@
             android:textColor="@color/text_light"
             android:textSize="11sp" />
 
-        <Button android:id="@+id/btnIntervalMinus" style="?android:attr/buttonStyleSmall" android:layout_width="36dp" android:layout_height="wrap_content" android:minWidth="0dp" android:padding="0dp" android:text="−" />
-        <TextView android:id="@+id/tvIntervalValue" android:layout_width="50dp" android:layout_height="wrap_content" android:gravity="center" android:text="1500" android:textColor="@color/text_light" android:textSize="12sp" />
-        <Button android:id="@+id/btnIntervalPlus" style="?android:attr/buttonStyleSmall" android:layout_width="36dp" android:layout_height="wrap_content" android:minWidth="0dp" android:padding="0dp" android:text="+" />
+        <Button
+            android:id="@+id/btnIntervalMinus"
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="36dp"
+            android:layout_height="wrap_content"
+            android:minWidth="0dp"
+            android:padding="0dp"
+            android:text="−" />
+
+        <TextView
+            android:id="@+id/tvIntervalValue"
+            android:layout_width="50dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="1500"
+            android:textColor="@color/text_light"
+            android:textSize="12sp" />
+
+        <Button
+            android:id="@+id/btnIntervalPlus"
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="36dp"
+            android:layout_height="wrap_content"
+            android:minWidth="0dp"
+            android:padding="0dp"
+            android:text="+" />
     </LinearLayout>
 
     <!-- Slide speed -->
@@ -108,12 +131,35 @@
             android:textColor="@color/text_light"
             android:textSize="11sp" />
 
-        <Button android:id="@+id/btnSlideMinus" style="?android:attr/buttonStyleSmall" android:layout_width="36dp" android:layout_height="wrap_content" android:minWidth="0dp" android:padding="0dp" android:text="−" />
-        <TextView android:id="@+id/tvSlideValue" android:layout_width="50dp" android:layout_height="wrap_content" android:gravity="center" android:text="300" android:textColor="@color/text_light" android:textSize="12sp" />
-        <Button android:id="@+id/btnSlidePlus" style="?android:attr/buttonStyleSmall" android:layout_width="36dp" android:layout_height="wrap_content" android:minWidth="0dp" android:padding="0dp" android:text="+" />
+        <Button
+            android:id="@+id/btnSlideMinus"
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="36dp"
+            android:layout_height="wrap_content"
+            android:minWidth="0dp"
+            android:padding="0dp"
+            android:text="−" />
+
+        <TextView
+            android:id="@+id/tvSlideValue"
+            android:layout_width="50dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="300"
+            android:textColor="@color/text_light"
+            android:textSize="12sp" />
+
+        <Button
+            android:id="@+id/btnSlidePlus"
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="36dp"
+            android:layout_height="wrap_content"
+            android:minWidth="0dp"
+            android:padding="0dp"
+            android:text="+" />
     </LinearLayout>
 
-    <!-- Post-swipe wait (formerly click delay) -->
+    <!-- Click delay -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -125,19 +171,42 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Post-swipe wait (ms):"
+            android:text="Click delay (ms):"
             android:textColor="@color/text_light"
             android:textSize="11sp" />
 
-        <Button android:id="@+id/btnClickDelayMinus" style="?android:attr/buttonStyleSmall" android:layout_width="36dp" android:layout_height="wrap_content" android:minWidth="0dp" android:padding="0dp" android:text="−" />
-        <TextView android:id="@+id/tvClickDelayValue" android:layout_width="50dp" android:layout_height="wrap_content" android:gravity="center" android:text="600" android:textColor="@color/text_light" android:textSize="12sp" />
-        <Button android:id="@+id/btnClickDelayPlus" style="?android:attr/buttonStyleSmall" android:layout_width="36dp" android:layout_height="wrap_content" android:minWidth="0dp" android:padding="0dp" android:text="+" />
+        <Button
+            android:id="@+id/btnClickDelayMinus"
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="36dp"
+            android:layout_height="wrap_content"
+            android:minWidth="0dp"
+            android:padding="0dp"
+            android:text="−" />
+
+        <TextView
+            android:id="@+id/tvClickDelayValue"
+            android:layout_width="50dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="300"
+            android:textColor="@color/text_light"
+            android:textSize="12sp" />
+
+        <Button
+            android:id="@+id/btnClickDelayPlus"
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="36dp"
+            android:layout_height="wrap_content"
+            android:minWidth="0dp"
+            android:padding="0dp"
+            android:text="+" />
     </LinearLayout>
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Time to let the UI settle after scroll"
+        android:text="Wait after swipe before tap"
         android:textColor="@color/text_light"
         android:textSize="9sp"
         android:alpha="0.7"
@@ -159,45 +228,38 @@
             android:textColor="@color/text_light"
             android:textSize="11sp" />
 
-        <Button android:id="@+id/btnRadiusMinus" style="?android:attr/buttonStyleSmall" android:layout_width="36dp" android:layout_height="wrap_content" android:minWidth="0dp" android:padding="0dp" android:text="−" />
-        <TextView android:id="@+id/tvRadiusValue" android:layout_width="50dp" android:layout_height="wrap_content" android:gravity="center" android:text="0" android:textColor="@color/text_light" android:textSize="12sp" />
-        <Button android:id="@+id/btnRadiusPlus" style="?android:attr/buttonStyleSmall" android:layout_width="36dp" android:layout_height="wrap_content" android:minWidth="0dp" android:padding="0dp" android:text="+" />
-    </LinearLayout>
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Randomise where the tap lands"
-        android:textColor="@color/text_light"
-        android:textSize="9sp"
-        android:alpha="0.7"
-        android:layout_marginTop="1dp" />
-
-    <!-- Tap duration -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:layout_marginTop="3dp">
+        <Button
+            android:id="@+id/btnRadiusMinus"
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="36dp"
+            android:layout_height="wrap_content"
+            android:minWidth="0dp"
+            android:padding="0dp"
+            android:text="−" />
 
         <TextView
-            android:layout_width="0dp"
+            android:id="@+id/tvRadiusValue"
+            android:layout_width="50dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Tap duration (ms):"
+            android:gravity="center"
+            android:text="0"
             android:textColor="@color/text_light"
-            android:textSize="11sp" />
+            android:textSize="12sp" />
 
-        <Button android:id="@+id/btnTapDurationMinus" style="?android:attr/buttonStyleSmall" android:layout_width="36dp" android:layout_height="wrap_content" android:minWidth="0dp" android:padding="0dp" android:text="−" />
-        <TextView android:id="@+id/tvTapDurationValue" android:layout_width="50dp" android:layout_height="wrap_content" android:gravity="center" android:text="80" android:textColor="@color/text_light" android:textSize="12sp" />
-        <Button android:id="@+id/btnTapDurationPlus" style="?android:attr/buttonStyleSmall" android:layout_width="36dp" android:layout_height="wrap_content" android:minWidth="0dp" android:padding="0dp" android:text="+" />
+        <Button
+            android:id="@+id/btnRadiusPlus"
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="36dp"
+            android:layout_height="wrap_content"
+            android:minWidth="0dp"
+            android:padding="0dp"
+            android:text="+" />
     </LinearLayout>
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="How long the 'finger' presses"
+        android:text="0 = exact same spot"
         android:textColor="@color/text_light"
         android:textSize="9sp"
         android:alpha="0.7"
@@ -219,9 +281,32 @@
             android:textColor="@color/text_light"
             android:textSize="11sp" />
 
-        <Button android:id="@+id/btnTapCountMinus" style="?android:attr/buttonStyleSmall" android:layout_width="36dp" android:layout_height="wrap_content" android:minWidth="0dp" android:padding="0dp" android:text="−" />
-        <TextView android:id="@+id/tvTapCountValue" android:layout_width="50dp" android:layout_height="wrap_content" android:gravity="center" android:text="1" android:textColor="@color/text_light" android:textSize="12sp" />
-        <Button android:id="@+id/btnTapCountPlus" style="?android:attr/buttonStyleSmall" android:layout_width="36dp" android:layout_height="wrap_content" android:minWidth="0dp" android:padding="0dp" android:text="+" />
+        <Button
+            android:id="@+id/btnTapCountMinus"
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="36dp"
+            android:layout_height="wrap_content"
+            android:minWidth="0dp"
+            android:padding="0dp"
+            android:text="−" />
+
+        <TextView
+            android:id="@+id/tvTapCountValue"
+            android:layout_width="50dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="1"
+            android:textColor="@color/text_light"
+            android:textSize="12sp" />
+
+        <Button
+            android:id="@+id/btnTapCountPlus"
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="36dp"
+            android:layout_height="wrap_content"
+            android:minWidth="0dp"
+            android:padding="0dp"
+            android:text="+" />
     </LinearLayout>
 
     <!-- Tap gap -->
@@ -240,15 +325,38 @@
             android:textColor="@color/text_light"
             android:textSize="11sp" />
 
-        <Button android:id="@+id/btnTapGapMinus" style="?android:attr/buttonStyleSmall" android:layout_width="36dp" android:layout_height="wrap_content" android:minWidth="0dp" android:padding="0dp" android:text="−" />
-        <TextView android:id="@+id/tvTapGapValue" android:layout_width="50dp" android:layout_height="wrap_content" android:gravity="center" android:text="150" android:textColor="@color/text_light" android:textSize="12sp" />
-        <Button android:id="@+id/btnTapGapPlus" style="?android:attr/buttonStyleSmall" android:layout_width="36dp" android:layout_height="wrap_content" android:minWidth="0dp" android:padding="0dp" android:text="+" />
+        <Button
+            android:id="@+id/btnTapGapMinus"
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="36dp"
+            android:layout_height="wrap_content"
+            android:minWidth="0dp"
+            android:padding="0dp"
+            android:text="−" />
+
+        <TextView
+            android:id="@+id/tvTapGapValue"
+            android:layout_width="50dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="150"
+            android:textColor="@color/text_light"
+            android:textSize="12sp" />
+
+        <Button
+            android:id="@+id/btnTapGapPlus"
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="36dp"
+            android:layout_height="wrap_content"
+            android:minWidth="0dp"
+            android:padding="0dp"
+            android:text="+" />
     </LinearLayout>
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Pause between consecutive taps"
+        android:text="Spread multiple taps over time"
         android:textColor="@color/text_light"
         android:textSize="9sp"
         android:alpha="0.7"
@@ -283,13 +391,13 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Randomise swipe path"
+        android:text="0 = exact line every time"
         android:textColor="@color/text_light"
         android:textSize="9sp"
         android:alpha="0.7"
         android:layout_marginTop="1dp" />
 
-    <!-- Start/Stop -->
+    <!-- Start/Stop buttons -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
