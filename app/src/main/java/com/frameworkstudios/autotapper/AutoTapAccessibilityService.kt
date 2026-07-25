@@ -2,6 +2,7 @@ package com.frameworkstudios.autotapper
 
 import android.accessibilityservice.AccessibilityService
 import android.accessibilityservice.GestureDescription
+import android.content.Intent
 import android.graphics.Path
 import android.view.accessibility.AccessibilityEvent
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -19,9 +20,18 @@ class AutoTapAccessibilityService : AccessibilityService() {
         instance = this
     }
 
+    override fun onUnbind(intent: Intent?): Boolean {
+        // Android can disconnect an accessibility service without calling onDestroy
+        // (e.g. it gets rebound in the background). Clearing here, in addition to
+        // onDestroy below, is what lets the running loop notice the drop and recover
+        // instead of holding a dead reference.
+        if (instance === this) instance = null
+        return super.onUnbind(intent)
+    }
+
     override fun onDestroy() {
         super.onDestroy()
-        instance = null
+        if (instance === this) instance = null
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
