@@ -62,6 +62,7 @@ class OverlayService : Service() {
     private var clickDelayMs = 300L
     private var tapRadiusPx = 0
     private var tapCount = 1
+    private var tapGapMs = 150L
 
     override fun onBind(intent: Intent?): IBinder? = null
 
@@ -149,6 +150,10 @@ class OverlayService : Service() {
         val btnTapCountPlus = panelView.findViewById<Button>(R.id.btnTapCountPlus)
         val tvTapCountValue = panelView.findViewById<TextView>(R.id.tvTapCountValue)
 
+        val btnTapGapMinus = panelView.findViewById<Button>(R.id.btnTapGapMinus)
+        val btnTapGapPlus = panelView.findViewById<Button>(R.id.btnTapGapPlus)
+        val tvTapGapValue = panelView.findViewById<TextView>(R.id.tvTapGapValue)
+
         val editScrollJitter = panelView.findViewById<EditText>(R.id.editScrollJitter)
 
         tvIntervalValue.text = loopIntervalMs.toString()
@@ -156,6 +161,7 @@ class OverlayService : Service() {
         tvClickDelayValue.text = clickDelayMs.toString()
         tvRadiusValue.text = tapRadiusPx.toString()
         tvTapCountValue.text = tapCount.toString()
+        tvTapGapValue.text = tapGapMs.toString()
 
         btnIntervalMinus.setOnClickListener {
             loopIntervalMs = (loopIntervalMs - 250).coerceAtLeast(100)
@@ -202,6 +208,15 @@ class OverlayService : Service() {
         btnTapCountPlus.setOnClickListener {
             tapCount = (tapCount + 1).coerceAtMost(5)
             tvTapCountValue.text = tapCount.toString()
+        }
+
+        btnTapGapMinus.setOnClickListener {
+            tapGapMs = (tapGapMs - 50).coerceAtLeast(50)
+            tvTapGapValue.text = tapGapMs.toString()
+        }
+        btnTapGapPlus.setOnClickListener {
+            tapGapMs = (tapGapMs + 50).coerceAtMost(2000)
+            tvTapGapValue.text = tapGapMs.toString()
         }
 
         makeEditable(editScrollJitter)
@@ -288,11 +303,11 @@ class OverlayService : Service() {
                         // 2. Wait for content to settle
                         delay(clickDelayMs)
 
-                        // 3. Then tap (repeated tapCount times, e.g. tick-tick-tick)
+                        // 3. Then tap (repeated tapCount times, spread by tapGapMs, e.g. tick-tick-tick)
                         for (i in 1..tapCount) {
                             val (tapX, tapY) = randomPointInRadius(tap, tapRadiusPx)
                             service.performTap(tapX, tapY)
-                            if (i < tapCount) delay(150)
+                            if (i < tapCount) delay(tapGapMs)
                         }
 
                         statusText.text = "Running…"
