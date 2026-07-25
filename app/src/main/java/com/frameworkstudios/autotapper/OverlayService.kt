@@ -7,8 +7,6 @@ import android.content.Intent
 import android.graphics.PixelFormat
 import android.os.Build
 import android.os.IBinder
-import android.text.Editable
-import android.text.TextWatcher
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.MotionEvent
@@ -57,6 +55,12 @@ class OverlayService : Service() {
 
     private val serviceScope = CoroutineScope(Dispatchers.Main)
     private var loopJob: Job? = null
+
+    // Tunable timing/radius state, all driven by the +/- panel buttons.
+    private var loopIntervalMs = 1500L
+    private var slideSpeedMs = 300L
+    private var clickDelayMs = 300L
+    private var tapRadiusPx = 0
 
     override fun onBind(intent: Intent?): IBinder? = null
 
@@ -123,33 +127,68 @@ class OverlayService : Service() {
         val btnStart = panelView.findViewById<Button>(R.id.btnStart)
         val btnStop = panelView.findViewById<Button>(R.id.btnStop)
         val btnClose = panelView.findViewById<TextView>(R.id.btnClose)
+
         val btnIntervalMinus = panelView.findViewById<Button>(R.id.btnIntervalMinus)
         val btnIntervalPlus = panelView.findViewById<Button>(R.id.btnIntervalPlus)
         val tvIntervalValue = panelView.findViewById<TextView>(R.id.tvIntervalValue)
-        val editTapRadius = panelView.findViewById<EditText>(R.id.editTapRadius)
+
+        val btnSlideMinus = panelView.findViewById<Button>(R.id.btnSlideMinus)
+        val btnSlidePlus = panelView.findViewById<Button>(R.id.btnSlidePlus)
+        val tvSlideValue = panelView.findViewById<TextView>(R.id.tvSlideValue)
+
+        val btnClickDelayMinus = panelView.findViewById<Button>(R.id.btnClickDelayMinus)
+        val btnClickDelayPlus = panelView.findViewById<Button>(R.id.btnClickDelayPlus)
+        val tvClickDelayValue = panelView.findViewById<TextView>(R.id.tvClickDelayValue)
+
+        val btnRadiusMinus = panelView.findViewById<Button>(R.id.btnRadiusMinus)
+        val btnRadiusPlus = panelView.findViewById<Button>(R.id.btnRadiusPlus)
+        val tvRadiusValue = panelView.findViewById<TextView>(R.id.tvRadiusValue)
+
         val editScrollJitter = panelView.findViewById<EditText>(R.id.editScrollJitter)
 
-        var intervalMs = 1500L
-        tvIntervalValue.text = intervalMs.toString()
+        tvIntervalValue.text = loopIntervalMs.toString()
+        tvSlideValue.text = slideSpeedMs.toString()
+        tvClickDelayValue.text = clickDelayMs.toString()
+        tvRadiusValue.text = tapRadiusPx.toString()
 
         btnIntervalMinus.setOnClickListener {
-            intervalMs = (intervalMs - 250).coerceAtLeast(100)
-            tvIntervalValue.text = intervalMs.toString()
+            loopIntervalMs = (loopIntervalMs - 250).coerceAtLeast(100)
+            tvIntervalValue.text = loopIntervalMs.toString()
         }
         btnIntervalPlus.setOnClickListener {
-            intervalMs = (intervalMs + 250).coerceAtMost(60000)
-            tvIntervalValue.text = intervalMs.toString()
+            loopIntervalMs = (loopIntervalMs + 250).coerceAtMost(60000)
+            tvIntervalValue.text = loopIntervalMs.toString()
         }
 
-        editTapRadius.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-            override fun afterTextChanged(s: Editable?) {
-                if (positioningMode == PositioningMode.NONE) updateRadiusRing(editTapRadius)
-            }
-        })
+        btnSlideMinus.setOnClickListener {
+            slideSpeedMs = (slideSpeedMs - 50).coerceAtLeast(50)
+            tvSlideValue.text = slideSpeedMs.toString()
+        }
+        btnSlidePlus.setOnClickListener {
+            slideSpeedMs = (slideSpeedMs + 50).coerceAtMost(5000)
+            tvSlideValue.text = slideSpeedMs.toString()
+        }
 
-        makeEditable(editTapRadius)
+        btnClickDelayMinus.setOnClickListener {
+            clickDelayMs = (clickDelayMs - 50).coerceAtLeast(0)
+            tvClickDelayValue.text = clickDelayMs.toString()
+        }
+        btnClickDelayPlus.setOnClickListener {
+            clickDelayMs = (clickDelayMs + 50).coerceAtMost(5000)
+            tvClickDelayValue.text = clickDelayMs.toString()
+        }
+
+        btnRadiusMinus.setOnClickListener {
+            tapRadiusPx = (tapRadiusPx - 10).coerceAtLeast(0)
+            tvRadiusValue.text = tapRadiusPx.toString()
+            if (positioningMode == PositioningMode.NONE) updateRadiusRing()
+        }
+        btnRadiusPlus.setOnClickListener {
+            tapRadiusPx = (tapRadiusPx + 10).coerceAtMost(500)
+            tvRadiusValue.text = tapRadiusPx.toString()
+            if (positioningMode == PositioningMode.NONE) updateRadiusRing()
+        }
+
         makeEditable(editScrollJitter)
 
         fun refreshStatus() {
@@ -193,12 +232,11 @@ class OverlayService : Service() {
             positioningMode = PositioningMode.NONE
             removeCrosshairs()
             btnConfirm.visibility = View.GONE
-            if (wasTap) updateRadiusRing(editTapRadius)
+            if (wasTap) updateRadiusRing()
             refreshStatus()
         }
 
         btnStart.setOnClickListener {
-            val tapRadius = editTapRadius.text.toString().toIntOrNull()?.coerceAtLeast(0) ?: 0
             val scrollJitter = editScrollJitter.text.toString().toIntOrNull()?.coerceAtLeast(0) ?: 0
             val start = scrollStart
             val end = scrollEnd
@@ -227,17 +265,23 @@ class OverlayService : Service() {
                     missingCycles = 0
 
                     try {
+                        // 1. Scroll
                         val (sx, sy) = randomPointInRadius(start, scrollJitter)
                         val (ex, ey) = randomPointInRadius(end, scrollJitter)
-                        service.performSwipe(sx, sy, ex, ey)
-                        delay(250)
-                        val (tapX, tapY) = randomPointInRadius(tap, tapRadius)
+                        service.performSwipe(sx, sy, ex, ey, durationMs = slideSpeedMs)
+
+                        // 2. Wait for content to settle
+                        delay(clickDelayMs)
+
+                        // 3. Then tap
+                        val (tapX, tapY) = randomPointInRadius(tap, tapRadiusPx)
                         service.performTap(tapX, tapY)
+
                         statusText.text = "Running…"
                     } catch (e: Exception) {
                         statusText.text = "Gesture error, retrying…"
                     }
-                    delay(intervalMs)
+                    delay(loopIntervalMs)
                 }
                 btnStart.isEnabled = scrollStart != null && scrollEnd != null && tapPoint != null
                 btnStop.isEnabled = false
@@ -311,14 +355,13 @@ class OverlayService : Service() {
         return Pair(center.first + dx, center.second + dy)
     }
 
-    private fun updateRadiusRing(editTapRadius: EditText) {
+    private fun updateRadiusRing() {
         val tap = tapPoint
-        val radiusPx = editTapRadius.text.toString().toIntOrNull()?.coerceAtLeast(0) ?: 0
-        if (tap == null || radiusPx <= 0) {
+        if (tap == null || tapRadiusPx <= 0) {
             removeRadiusRing()
             return
         }
-        val size = radiusPx * 2
+        val size = tapRadiusPx * 2
         val existing = tapRadiusRing
         if (existing == null) {
             val ring = RadiusRingView(this)
@@ -329,8 +372,8 @@ class OverlayService : Service() {
                 PixelFormat.TRANSLUCENT
             ).apply {
                 gravity = Gravity.TOP or Gravity.START
-                x = (tap.first - radiusPx).toInt()
-                y = (tap.second - radiusPx).toInt()
+                x = (tap.first - tapRadiusPx).toInt()
+                y = (tap.second - tapRadiusPx).toInt()
             }
             windowManager.addView(ring, params)
             tapRadiusRing = ring
@@ -338,8 +381,8 @@ class OverlayService : Service() {
             val params = existing.layoutParams as WindowManager.LayoutParams
             params.width = size
             params.height = size
-            params.x = (tap.first - radiusPx).toInt()
-            params.y = (tap.second - radiusPx).toInt()
+            params.x = (tap.first - tapRadiusPx).toInt()
+            params.y = (tap.second - tapRadiusPx).toInt()
             windowManager.updateViewLayout(existing, params)
         }
     }
