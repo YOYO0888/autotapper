@@ -123,9 +123,23 @@ class OverlayService : Service() {
         val btnStart = panelView.findViewById<Button>(R.id.btnStart)
         val btnStop = panelView.findViewById<Button>(R.id.btnStop)
         val btnClose = panelView.findViewById<TextView>(R.id.btnClose)
-        val editInterval = panelView.findViewById<EditText>(R.id.editInterval)
+        val btnIntervalMinus = panelView.findViewById<Button>(R.id.btnIntervalMinus)
+        val btnIntervalPlus = panelView.findViewById<Button>(R.id.btnIntervalPlus)
+        val tvIntervalValue = panelView.findViewById<TextView>(R.id.tvIntervalValue)
         val editTapRadius = panelView.findViewById<EditText>(R.id.editTapRadius)
         val editScrollJitter = panelView.findViewById<EditText>(R.id.editScrollJitter)
+
+        var intervalMs = 1500L
+        tvIntervalValue.text = intervalMs.toString()
+
+        btnIntervalMinus.setOnClickListener {
+            intervalMs = (intervalMs - 250).coerceAtLeast(100)
+            tvIntervalValue.text = intervalMs.toString()
+        }
+        btnIntervalPlus.setOnClickListener {
+            intervalMs = (intervalMs + 250).coerceAtMost(60000)
+            tvIntervalValue.text = intervalMs.toString()
+        }
 
         editTapRadius.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
@@ -135,7 +149,6 @@ class OverlayService : Service() {
             }
         })
 
-        makeEditable(editInterval)
         makeEditable(editTapRadius)
         makeEditable(editScrollJitter)
 
@@ -185,7 +198,6 @@ class OverlayService : Service() {
         }
 
         btnStart.setOnClickListener {
-            val interval = editInterval.text.toString().toLongOrNull() ?: 1500L
             val tapRadius = editTapRadius.text.toString().toIntOrNull()?.coerceAtLeast(0) ?: 0
             val scrollJitter = editScrollJitter.text.toString().toIntOrNull()?.coerceAtLeast(0) ?: 0
             val start = scrollStart
@@ -198,22 +210,37 @@ class OverlayService : Service() {
             statusText.text = "Running…"
 
             loopJob = serviceScope.launch {
-                val service = AutoTapAccessibilityService.instance
-                if (service == null) {
-                    statusText.text = "Accessibility service not connected."
-                    btnStart.isEnabled = true
-                    btnStop.isEnabled = false
-                    return@launch
-                }
+                var missingCycles = 0
                 while (isActive) {
-                    val (sx, sy) = randomPointInRadius(start, scrollJitter)
-                    val (ex, ey) = randomPointInRadius(end, scrollJitter)
-                    service.performSwipe(sx, sy, ex, ey)
-                    delay(250)
-                    val (tapX, tapY) = randomPointInRadius(tap, tapRadius)
-                    service.performTap(tapX, tapY)
-                    delay(interval)
+                    val service = AutoTapAccessibilityService.instance
+                    if (service == null) {
+                        missingCycles++
+                        if (missingCycles >= 6) {
+                            statusText.text =
+                                "Accessibility service lost. Re-enable it in Settings, then tap Start again."
+                            break
+                        }
+                        statusText.text = "Accessibility service reconnecting…"
+                        delay(500)
+                        continue
+                    }
+                    missingCycles = 0
+
+                    try {
+                        val (sx, sy) = randomPointInRadius(start, scrollJitter)
+                        val (ex, ey) = randomPointInRadius(end, scrollJitter)
+                        service.performSwipe(sx, sy, ex, ey)
+                        delay(250)
+                        val (tapX, tapY) = randomPointInRadius(tap, tapRadius)
+                        service.performTap(tapX, tapY)
+                        statusText.text = "Running…"
+                    } catch (e: Exception) {
+                        statusText.text = "Gesture error, retrying…"
+                    }
+                    delay(intervalMs)
                 }
+                btnStart.isEnabled = scrollStart != null && scrollEnd != null && tapPoint != null
+                btnStop.isEnabled = false
             }
         }
 
