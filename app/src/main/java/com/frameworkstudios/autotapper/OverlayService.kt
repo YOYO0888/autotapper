@@ -39,7 +39,6 @@ class OverlayService : Service() {
     private var tapCrosshair: CrosshairView? = null
     private var tapRadiusRing: RadiusRingView? = null
 
-    // Saved gesture coordinates, in raw screen pixels.
     private var scrollStart: Pair<Float, Float>? = null
     private var scrollEnd: Pair<Float, Float>? = null
     private var tapPoint: Pair<Float, Float>? = null
@@ -56,7 +55,6 @@ class OverlayService : Service() {
     private val serviceScope = CoroutineScope(Dispatchers.Main)
     private var loopJob: Job? = null
 
-    // Tunable timing/radius state, all driven by the +/- panel buttons.
     private var loopIntervalMs = 1500L
     private var slideSpeedMs = 300L
     private var clickDelayMs = 300L
@@ -101,8 +99,6 @@ class OverlayService : Service() {
         startForeground(1, notification)
     }
 
-    // ---------- Control panel ----------
-
     private fun showPanel() {
         panelView = LayoutInflater.from(this).inflate(R.layout.overlay_panel, null)
 
@@ -129,6 +125,8 @@ class OverlayService : Service() {
         val btnStart = panelView.findViewById<Button>(R.id.btnStart)
         val btnStop = panelView.findViewById<Button>(R.id.btnStop)
         val btnClose = panelView.findViewById<TextView>(R.id.btnClose)
+        val btnToggleSettings = panelView.findViewById<TextView>(R.id.btnToggleSettings)
+        val tuningContainer = panelView.findViewById<View>(R.id.tuningContainer)
 
         val btnIntervalMinus = panelView.findViewById<Button>(R.id.btnIntervalMinus)
         val btnIntervalPlus = panelView.findViewById<Button>(R.id.btnIntervalPlus)
@@ -223,9 +221,9 @@ class OverlayService : Service() {
 
         fun refreshStatus() {
             val parts = mutableListOf<String>()
-            parts.add(if (scrollStart != null && scrollEnd != null) "Scroll ✓" else "Scroll not set")
-            parts.add(if (tapPoint != null) "Tap ✓" else "Tap not set")
-            statusText.text = parts.joinToString("  •  ")
+            parts.add(if (scrollStart != null && scrollEnd != null) "Scroll done" else "Scroll not set")
+            parts.add(if (tapPoint != null) "Tap done" else "Tap not set")
+            statusText.text = parts.joinToString("  |  ")
             btnStart.isEnabled = scrollStart != null && scrollEnd != null && tapPoint != null &&
                 loopJob?.isActive != true
         }
@@ -235,7 +233,7 @@ class OverlayService : Service() {
             removeCrosshairs()
             addScrollCrosshairs()
             btnConfirm.visibility = View.VISIBLE
-            statusText.text = "Drag green (start) & yellow (end) points, then Confirm."
+            statusText.text = "Drag green (start) and yellow (end) points, then Confirm."
         }
 
         btnSetTap.setOnClickListener {
@@ -275,7 +273,7 @@ class OverlayService : Service() {
 
             btnStart.isEnabled = false
             btnStop.isEnabled = true
-            statusText.text = "Running…"
+            statusText.text = "Running..."
 
             loopJob = serviceScope.launch {
                 var missingCycles = 0
@@ -288,31 +286,28 @@ class OverlayService : Service() {
                                 "Accessibility service lost. Re-enable it in Settings, then tap Start again."
                             break
                         }
-                        statusText.text = "Accessibility service reconnecting…"
+                        statusText.text = "Accessibility service reconnecting..."
                         delay(500)
                         continue
                     }
                     missingCycles = 0
 
                     try {
-                        // 1. Scroll
                         val (sx, sy) = randomPointInRadius(start, scrollJitter)
                         val (ex, ey) = randomPointInRadius(end, scrollJitter)
                         service.performSwipe(sx, sy, ex, ey, durationMs = slideSpeedMs)
 
-                        // 2. Wait for content to settle
                         delay(clickDelayMs)
 
-                        // 3. Then tap (repeated tapCount times, spread by tapGapMs, e.g. tick-tick-tick)
                         for (i in 1..tapCount) {
                             val (tapX, tapY) = randomPointInRadius(tap, tapRadiusPx)
                             service.performTap(tapX, tapY)
                             if (i < tapCount) delay(tapGapMs)
                         }
 
-                        statusText.text = "Running…"
+                        statusText.text = "Running..."
                     } catch (e: Exception) {
-                        statusText.text = "Gesture error, retrying…"
+                        statusText.text = "Gesture error, retrying..."
                     }
                     val randomOffset = Random.nextLong(-250, 250)
                     delay((loopIntervalMs + randomOffset).coerceAtLeast(100))
@@ -334,15 +329,17 @@ class OverlayService : Service() {
             stopSelf()
         }
 
+        btnToggleSettings.setOnClickListener {
+            tuningContainer.visibility = if (tuningContainer.visibility == View.VISIBLE) {
+                View.GONE
+            } else {
+                View.VISIBLE
+            }
+        }
+
         refreshStatus()
     }
 
-    /**
-     * The overlay window is normally FLAG_NOT_FOCUSABLE so it doesn't steal input focus
-     * while you're dragging it or interacting with other apps. But that also blocks the
-     * keyboard from appearing for EditTexts. This makes the window focusable only while
-     * a given field is actually being edited, then restores it afterward.
-     */
     private fun makeEditable(editText: EditText) {
         editText.setOnClickListener {
             setPanelFocusable(true)
@@ -379,7 +376,6 @@ class OverlayService : Service() {
         )
     }
 
-    /** Uniformly samples a point inside a circle of [radiusPx] centered on [center]. */
     private fun randomPointInRadius(center: Pair<Float, Float>, radiusPx: Int): Pair<Float, Float> {
         if (radiusPx <= 0) return center
         val angle = Random.nextDouble(0.0, 2 * Math.PI)
@@ -452,8 +448,6 @@ class OverlayService : Service() {
             }
         }
     }
-
-    // ---------- Crosshairs ----------
 
     private fun addScrollCrosshairs() {
         scrollStartCrosshair = addCrosshair(
