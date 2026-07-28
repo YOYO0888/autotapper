@@ -1,4 +1,4 @@
 <resources>
     <string name="app_name">AutoTapper</string>
-    <string name="accessibility_service_description">Allows AutoTapper to perform scroll and tap gestures you configure, on any app, until you press Stop.</string>
+    <string name="accessibility_service_description">Allows AutoTapper to perform the swipe and tap gestures you configure, on any app, until you press Stop. Nothing is read from the screen and nothing leaves the device.</string>
 </resources>

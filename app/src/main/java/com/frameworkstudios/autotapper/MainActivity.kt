@@ -32,11 +32,12 @@ class MainActivity : AppCompatActivity() {
         }
 
         btnOverlay.setOnClickListener {
-            val intent = Intent(
-                Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                Uri.parse("package:$packageName")
+            startActivity(
+                Intent(
+                    Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                    Uri.parse("package:$packageName")
+                )
             )
-            startActivity(intent)
         }
 
         btnLaunchControls.setOnClickListener {
@@ -55,11 +56,14 @@ class MainActivity : AppCompatActivity() {
         val overlayEnabled = Settings.canDrawOverlays(this)
 
         statusAccessibility.text =
-            "1. Accessibility service: ${if (accessibilityEnabled) "ON" else "OFF"}"
+            "1. Accessibility service: ${if (accessibilityEnabled) "ON ✓" else "OFF"}"
         statusOverlay.text =
-            "2. Overlay permission: ${if (overlayEnabled) "ON" else "OFF"}"
+            "2. Overlay permission: ${if (overlayEnabled) "ON ✓" else "OFF"}"
 
         btnLaunchControls.isEnabled = accessibilityEnabled && overlayEnabled
+        btnLaunchControls.text =
+            if (accessibilityEnabled && overlayEnabled) "Launch Floating Panel"
+            else "Enable both permissions above"
     }
 
     private fun isAccessibilityServiceEnabled(): Boolean {
@@ -72,9 +76,7 @@ class MainActivity : AppCompatActivity() {
         val splitter = TextUtils.SimpleStringSplitter(':')
         splitter.setString(enabledServices)
         while (splitter.hasNext()) {
-            if (splitter.next().equals(expectedComponent, ignoreCase = true)) {
-                return true
-            }
+            if (splitter.next().equals(expectedComponent, ignoreCase = true)) return true
         }
         return false
     }

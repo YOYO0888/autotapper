@@ -1,48 +1,53 @@
 # AutoTapper
 
-A floating on-screen tool that scrolls and taps a button on a loop, on top of
-any app, until you press Stop.
+A floating on-screen tool that taps and/or swipes a point on a loop, on top of
+any app, until you press Stop. Built for repetitive queue work.
+
+## What's new in v2.0
+
+- **Tap-only, swipe-only, or both** — swipe is no longer mandatory.
+- **Saved profiles** — name and store point/timing presets, switch between them.
+- **Persistence** — your last points and settings are restored automatically,
+  even after closing the panel or rebooting.
+- **Minimize to a bubble** — shrink the panel to a small floating dot while it runs.
+- **Cycle limit** — run N cycles then auto-stop (0 = forever).
+- **Coordinate fix** — taps now land exactly on the crosshair on all devices.
+- **Redesigned UI** — dark Material panel, colored status chip (idle / running /
+  error), haptic feedback on start/stop.
 
 ## How it works
 
-Android won't let a normal app inject touches into other apps — only an
-**Accessibility Service** can dispatch gestures system-wide, and only a
-**"draw over other apps" overlay** can show floating controls on top of
-whatever you're using. This app uses both, entirely locally on your device.
-Nothing is sent anywhere.
+Android only lets an **Accessibility Service** dispatch gestures system-wide, and
+only a **"draw over other apps" overlay** can float controls on top of other
+apps. This app uses both, entirely locally. Nothing is read from the screen and
+nothing is sent anywhere.
 
 ## Setup
 
-1. Open the project in Android Studio (Giraffe or newer), let Gradle sync,
-   and run it on a device or emulator (minSdk 26 / Android 8+).
-2. In the app, tap **Enable Accessibility Service** → find "AutoTapper" in
-   the list → turn it on.
-3. Tap **Enable Overlay Permission** → allow "display over other apps".
-4. Tap **Launch Floating Controls**. A small draggable panel appears.
+1. Install the APK (see below), or open in Android Studio (Giraffe+), minSdk 26.
+2. Tap **Open Accessibility Settings** -> enable "AutoTapper".
+3. Tap **Open Overlay Settings** -> allow "display over other apps".
+4. Tap **Launch Floating Panel**.
 
 ## Using it
 
-1. Open whatever app/screen you want to automate (e.g. swipe to it, or just
-   leave the panel floating over your home screen — it stays on top of
-   everything).
-2. In the panel, tap **Set Scroll Points**. Two circles appear — drag the
-   green one to where the swipe should start and the yellow one to where it
-   should end (e.g. green near the bottom of the screen, yellow near the
-   top, for a scroll-up gesture). Tap **Confirm Position**.
-3. Tap **Set Tap Point**, drag the pink circle onto the button you want
-   pressed, tap **Confirm Position**.
-4. Set the **interval** (milliseconds to wait between each loop).
-5. Tap **Start**. It will repeat: swipe → wait → tap → wait, forever.
-6. Tap **Stop** any time to end the loop. The panel stays up so you can
-   re-run it or reposition the points.
-7. Tap the ✕ on the panel to fully close the overlay and stop the
-   foreground service.
+1. **Set Tap** -> drag the pink point onto the button -> **Confirm**.
+2. (Optional) **Set Swipe** -> drag green (start) and yellow (end) -> **Confirm**.
+3. Open **Settings (gear)** for timing, tap radius/count, jitter, cycle limit,
+   and profiles.
+4. **Start**. It repeats swipe -> wait -> tap(s) -> wait until you Stop.
+5. **Save** a profile to reuse the setup later.
+6. **—** minimizes to a bubble; **✕** closes the overlay.
+
+## Build / distribute
+
+Push to GitHub. The included Actions workflow (`.github/workflows/build.yml`)
+builds a debug APK on every push — download it from **Actions -> latest run ->
+Artifacts -> AutoTapper-debug-apk**.
 
 ## Notes
 
-- You can drag the whole panel around by its "⠿ AutoTapper" header.
-- If the accessibility service gets killed by the OS (some phones are
-  aggressive about this), re-enable it from Android's Accessibility
-  settings — the app will pick it back up automatically.
-- Coordinates are recorded once, in raw screen pixels, so they'll be off if
-  you rotate the screen or switch to a device with a different resolution.
+- Coordinates are raw screen pixels; re-set points after a rotation or on a
+  device with a different resolution.
+- If the OS kills the accessibility service, re-enable it in Settings — the
+  running loop detects the drop and recovers.
