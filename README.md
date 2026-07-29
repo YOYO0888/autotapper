@@ -1,53 +1,56 @@
 # AutoTapper
 
-A floating on-screen tool that taps and/or swipes a point on a loop, on top of
-any app, until you press Stop. Built for repetitive queue work.
+A floating on-screen tool that runs a saved *sequence* of taps, swipes, and
+waits on a loop, on top of any app, until you press Stop. Built for repetitive
+queue work.
 
-## What's new in v2.0
+## v3.0 — what's new
 
-- **Tap-only, swipe-only, or both** — swipe is no longer mandatory.
-- **Saved profiles** — name and store point/timing presets, switch between them.
-- **Persistence** — your last points and settings are restored automatically,
-  even after closing the panel or rebooting.
-- **Minimize to a bubble** — shrink the panel to a small floating dot while it runs.
-- **Cycle limit** — run N cycles then auto-stop (0 = forever).
-- **Coordinate fix** — taps now land exactly on the crosshair on all devices.
-- **Redesigned UI** — dark Material panel, colored status chip (idle / running /
-  error), haptic feedback on start/stop.
-
-## How it works
-
-Android only lets an **Accessibility Service** dispatch gestures system-wide, and
-only a **"draw over other apps" overlay** can float controls on top of other
-apps. This app uses both, entirely locally. Nothing is read from the screen and
-nothing is sent anywhere.
+- **Multi-step sequences**: chain any number of Tap, Swipe, and Wait steps.
+  The loop runs them top to bottom, then repeats.
+- **Record mode**: press Record, do the workflow on the screen with your
+  finger, press Stop — the tool captures every tap, swipe, and the waits
+  between them.
+- **Reorder / delete per step** (▲ ▼ ✕ buttons on each row).
+- **Profile export/import via clipboard**: copy a profile to share with the
+  team, paste-import one someone sent you.
+- **Live cycle count** shown on the minimized bubble; tap the bubble to pause.
+- Everything from v2 kept: named profiles, persistence, tap radius/jitter,
+  cycle limit, dark Material UI, coordinate fix, haptics.
 
 ## Setup
 
-1. Install the APK (see below), or open in Android Studio (Giraffe+), minSdk 26.
-2. Tap **Open Accessibility Settings** -> enable "AutoTapper".
-3. Tap **Open Overlay Settings** -> allow "display over other apps".
-4. Tap **Launch Floating Panel**.
+Same as before:
+
+1. Install the APK from GitHub Actions (Actions → latest run → Artifacts).
+2. Open the app → **Open Accessibility Settings** → enable AutoTapper.
+3. **Open Overlay Settings** → allow "display over other apps".
+4. **Launch Floating Panel**.
 
 ## Using it
 
-1. **Set Tap** -> drag the pink point onto the button -> **Confirm**.
-2. (Optional) **Set Swipe** -> drag green (start) and yellow (end) -> **Confirm**.
-3. Open **Settings (gear)** for timing, tap radius/count, jitter, cycle limit,
-   and profiles.
-4. **Start**. It repeats swipe -> wait -> tap(s) -> wait until you Stop.
-5. **Save** a profile to reuse the setup later.
-6. **—** minimizes to a bubble; **✕** closes the overlay.
+**Manual build**
+- **+ Tap** → drag pink point onto target → **Confirm**.
+- **+ Swipe** → drag green (start) and yellow (end) → **Confirm**.
+- **+ Wait** → adds a wait step using the default duration in Settings.
+- Reorder with ▲▼, delete with ✕.
 
-## Build / distribute
+**Record**
+- Press **● Record**, do the actions with your finger (a faint pink overlay
+  captures gestures instead of the underlying app receiving them).
+- Press **■ Stop Recording**. The captured sequence is now in your steps.
 
-Push to GitHub. The included Actions workflow (`.github/workflows/build.yml`)
-builds a debug APK on every push — download it from **Actions -> latest run ->
-Artifacts -> AutoTapper-debug-apk**.
+**Run**
+- **▶ Start**. Set cycle limit in Settings (0 = forever), or **■ Stop** any time.
+
+**Share a profile**
+- Save → select in the carousel → **Copy (share)**. Paste the text in Slack /
+  email.
+- Recipient: copy the text on their phone → **Paste import** in the panel.
 
 ## Notes
 
-- Coordinates are raw screen pixels; re-set points after a rotation or on a
-  device with a different resolution.
-- If the OS kills the accessibility service, re-enable it in Settings — the
-  running loop detects the drop and recovers.
+- Coordinates are raw screen pixels; a profile recorded on one device will
+  usually not fit a different resolution exactly. Re-record if needed.
+- If Android kills the accessibility service, re-enable it — the running loop
+  detects the drop and reconnects.

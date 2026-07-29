@@ -10,7 +10,7 @@
         android:orientation="vertical"
         android:background="@drawable/panel_bg"
         android:padding="10dp"
-        android:minWidth="252dp">
+        android:minWidth="272dp">
 
         <!-- Header -->
         <LinearLayout
@@ -24,7 +24,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="⠿  AutoTapper"
+                android:text="⠿  AutoTapper  v3"
                 android:textColor="@color/text_light"
                 android:textStyle="bold"
                 android:textSize="13sp"
@@ -37,10 +37,7 @@
                 android:text="—"
                 android:textColor="@color/text_dim"
                 android:textSize="14sp"
-                android:paddingStart="8dp"
-                android:paddingEnd="8dp"
-                android:paddingTop="4dp"
-                android:paddingBottom="4dp" />
+                android:padding="6dp" />
 
             <TextView
                 android:id="@+id/btnToggleSettings"
@@ -49,10 +46,7 @@
                 android:text="⚙"
                 android:textColor="@color/text_dim"
                 android:textSize="15sp"
-                android:paddingStart="8dp"
-                android:paddingEnd="8dp"
-                android:paddingTop="4dp"
-                android:paddingBottom="4dp" />
+                android:padding="6dp" />
 
             <TextView
                 android:id="@+id/btnClose"
@@ -61,28 +55,21 @@
                 android:text="✕"
                 android:textColor="@color/text_dim"
                 android:textSize="14sp"
-                android:paddingStart="8dp"
-                android:paddingEnd="8dp"
-                android:paddingTop="4dp"
-                android:paddingBottom="4dp" />
+                android:padding="6dp" />
         </LinearLayout>
 
-        <!-- Status chip -->
         <TextView
             android:id="@+id/statusText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
             android:background="@drawable/status_chip"
-            android:paddingStart="10dp"
-            android:paddingEnd="10dp"
-            android:paddingTop="6dp"
-            android:paddingBottom="6dp"
-            android:text="Set a tap point or swipe points to begin."
+            android:padding="8dp"
+            android:text="No steps yet."
             android:textColor="@color/text_light"
             android:textSize="11sp" />
 
-        <!-- Point setters -->
+        <!-- Add step / record row -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -90,53 +77,115 @@
             android:layout_marginTop="8dp">
 
             <Button
-                android:id="@+id/btnSetTap"
+                android:id="@+id/btnAddTap"
                 android:layout_width="0dp"
                 android:layout_height="36dp"
                 android:layout_weight="1"
                 android:minHeight="0dp"
                 android:background="@drawable/btn_secondary"
-                android:text="Set Tap"
+                android:text="+ Tap"
+                android:textAllCaps="false"
+                android:textColor="@color/text_light"
+                android:textSize="11sp" />
+
+            <Button
+                android:id="@+id/btnAddSwipe"
+                android:layout_width="0dp"
+                android:layout_height="36dp"
+                android:layout_weight="1"
+                android:layout_marginStart="4dp"
+                android:minHeight="0dp"
+                android:background="@drawable/btn_secondary"
+                android:text="+ Swipe"
+                android:textAllCaps="false"
+                android:textColor="@color/text_light"
+                android:textSize="11sp" />
+
+            <Button
+                android:id="@+id/btnAddWait"
+                android:layout_width="0dp"
+                android:layout_height="36dp"
+                android:layout_weight="1"
+                android:layout_marginStart="4dp"
+                android:minHeight="0dp"
+                android:background="@drawable/btn_secondary"
+                android:text="+ Wait"
+                android:textAllCaps="false"
+                android:textColor="@color/text_light"
+                android:textSize="11sp" />
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/btnRecord"
+            android:layout_width="match_parent"
+            android:layout_height="36dp"
+            android:layout_marginTop="4dp"
+            android:minHeight="0dp"
+            android:background="@drawable/btn_secondary"
+            android:text="● Record"
+            android:textAllCaps="false"
+            android:textColor="@color/text_light"
+            android:textSize="12sp" />
+
+        <!-- Picker confirm/cancel bar (shown only while placing) -->
+        <LinearLayout
+            android:id="@+id/pickerBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="4dp"
+            android:visibility="gone">
+
+            <Button
+                android:id="@+id/btnConfirmPicker"
+                android:layout_width="0dp"
+                android:layout_height="36dp"
+                android:layout_weight="1"
+                android:minHeight="0dp"
+                android:background="@drawable/btn_primary"
+                android:text="Confirm"
                 android:textAllCaps="false"
                 android:textColor="@color/text_light"
                 android:textSize="12sp" />
 
             <Button
-                android:id="@+id/btnSetScroll"
+                android:id="@+id/btnCancelPicker"
                 android:layout_width="0dp"
                 android:layout_height="36dp"
                 android:layout_weight="1"
-                android:layout_marginStart="6dp"
+                android:layout_marginStart="4dp"
                 android:minHeight="0dp"
                 android:background="@drawable/btn_secondary"
-                android:text="Set Swipe"
+                android:text="Cancel"
                 android:textAllCaps="false"
                 android:textColor="@color/text_light"
                 android:textSize="12sp" />
         </LinearLayout>
 
-        <Button
-            android:id="@+id/btnConfirmPositions"
-            android:layout_width="match_parent"
-            android:layout_height="36dp"
-            android:layout_marginTop="6dp"
-            android:minHeight="0dp"
-            android:background="@drawable/btn_primary"
-            android:text="Confirm Position"
-            android:textAllCaps="false"
-            android:textColor="@color/text_light"
-            android:textSize="12sp"
-            android:visibility="gone" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="SEQUENCE"
+            android:textColor="@color/text_dim"
+            android:textSize="10sp"
+            android:letterSpacing="0.1" />
 
         <TextView
-            android:id="@+id/btnClearPoints"
+            android:id="@+id/btnClearSteps"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:padding="2dp"
+            android:text="Clear all"
+            android:textColor="@color/text_dim"
+            android:textSize="10sp" />
+
+        <LinearLayout
+            android:id="@+id/stepsContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center"
-            android:padding="5dp"
-            android:text="Clear points"
-            android:textColor="@color/text_dim"
-            android:textSize="11sp" />
+            android:orientation="vertical" />
 
         <!-- Settings (collapsible) -->
         <LinearLayout
@@ -145,393 +194,245 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:visibility="gone">
-
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:layout_marginTop="8dp" android:text="LOOP"
+                android:textColor="@color/text_dim" android:textSize="10sp" android:letterSpacing="0.1" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginTop="4dp">
             <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
-                android:text="TIMING"
-                android:textColor="@color/text_dim"
-                android:textSize="10sp"
-                android:letterSpacing="0.1" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginTop="4dp">
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Loop interval (ms)"
-                    android:textColor="@color/text_light"
-                    android:textSize="11sp" />
-                <Button
-                    android:id="@+id/btnIntervalMinus"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    android:minWidth="0dp"
-                    android:minHeight="0dp"
-                    android:padding="0dp"
-                    android:background="@drawable/btn_secondary"
-                    android:textColor="@color/text_light"
-                    android:textSize="14sp"
-                    android:text="−" />
-                <TextView
-                    android:id="@+id/tvIntervalValue"
-                    android:layout_width="52dp"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:text="1500"
-                    android:textColor="@color/text_light"
-                    android:textSize="12sp" />
-                <Button
-                    android:id="@+id/btnIntervalPlus"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    android:minWidth="0dp"
-                    android:minHeight="0dp"
-                    android:padding="0dp"
-                    android:background="@drawable/btn_secondary"
-                    android:textColor="@color/text_light"
-                    android:textSize="14sp"
-                    android:text="+" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginTop="3dp">
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Swipe speed (ms)"
-                    android:textColor="@color/text_light"
-                    android:textSize="11sp" />
-                <Button
-                    android:id="@+id/btnSlideMinus"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    android:minWidth="0dp"
-                    android:minHeight="0dp"
-                    android:padding="0dp"
-                    android:background="@drawable/btn_secondary"
-                    android:textColor="@color/text_light"
-                    android:textSize="14sp"
-                    android:text="−" />
-                <TextView
-                    android:id="@+id/tvSlideValue"
-                    android:layout_width="52dp"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:text="300"
-                    android:textColor="@color/text_light"
-                    android:textSize="12sp" />
-                <Button
-                    android:id="@+id/btnSlidePlus"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    android:minWidth="0dp"
-                    android:minHeight="0dp"
-                    android:padding="0dp"
-                    android:background="@drawable/btn_secondary"
-                    android:textColor="@color/text_light"
-                    android:textSize="14sp"
-                    android:text="+" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginTop="3dp">
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Delay after swipe (ms)"
-                    android:textColor="@color/text_light"
-                    android:textSize="11sp" />
-                <Button
-                    android:id="@+id/btnClickDelayMinus"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    android:minWidth="0dp"
-                    android:minHeight="0dp"
-                    android:padding="0dp"
-                    android:background="@drawable/btn_secondary"
-                    android:textColor="@color/text_light"
-                    android:textSize="14sp"
-                    android:text="−" />
-                <TextView
-                    android:id="@+id/tvClickDelayValue"
-                    android:layout_width="52dp"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:text="300"
-                    android:textColor="@color/text_light"
-                    android:textSize="12sp" />
-                <Button
-                    android:id="@+id/btnClickDelayPlus"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    android:minWidth="0dp"
-                    android:minHeight="0dp"
-                    android:padding="0dp"
-                    android:background="@drawable/btn_secondary"
-                    android:textColor="@color/text_light"
-                    android:textSize="14sp"
-                    android:text="+" />
-            </LinearLayout>
-
+                android:layout_weight="1"
+                android:text="Loop interval (ms)"
+                android:textColor="@color/text_light"
+                android:textSize="11sp" />
+            <Button android:id="@+id/btnIntervalMinus"
+                android:layout_width="32dp" android:layout_height="32dp"
+                android:minWidth="0dp" android:minHeight="0dp" android:padding="0dp"
+                android:background="@drawable/btn_secondary"
+                android:textColor="@color/text_light" android:textSize="14sp" android:text="−" />
+            <TextView android:id="@+id/tvIntervalValue"
+                android:layout_width="52dp" android:layout_height="wrap_content"
+                android:gravity="center" android:text="1200"
+                android:textColor="@color/text_light" android:textSize="12sp" />
+            <Button android:id="@+id/btnIntervalPlus"
+                android:layout_width="32dp" android:layout_height="32dp"
+                android:minWidth="0dp" android:minHeight="0dp" android:padding="0dp"
+                android:background="@drawable/btn_secondary"
+                android:textColor="@color/text_light" android:textSize="14sp" android:text="+" />
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginTop="4dp">
             <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="TAPPING"
-                android:textColor="@color/text_dim"
-                android:textSize="10sp"
-                android:letterSpacing="0.1" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginTop="4dp">
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Tap radius (px)"
-                    android:textColor="@color/text_light"
-                    android:textSize="11sp" />
-                <Button
-                    android:id="@+id/btnRadiusMinus"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    android:minWidth="0dp"
-                    android:minHeight="0dp"
-                    android:padding="0dp"
-                    android:background="@drawable/btn_secondary"
-                    android:textColor="@color/text_light"
-                    android:textSize="14sp"
-                    android:text="−" />
-                <TextView
-                    android:id="@+id/tvRadiusValue"
-                    android:layout_width="52dp"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:text="0"
-                    android:textColor="@color/text_light"
-                    android:textSize="12sp" />
-                <Button
-                    android:id="@+id/btnRadiusPlus"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    android:minWidth="0dp"
-                    android:minHeight="0dp"
-                    android:padding="0dp"
-                    android:background="@drawable/btn_secondary"
-                    android:textColor="@color/text_light"
-                    android:textSize="14sp"
-                    android:text="+" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginTop="3dp">
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Taps per cycle"
-                    android:textColor="@color/text_light"
-                    android:textSize="11sp" />
-                <Button
-                    android:id="@+id/btnTapCountMinus"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    android:minWidth="0dp"
-                    android:minHeight="0dp"
-                    android:padding="0dp"
-                    android:background="@drawable/btn_secondary"
-                    android:textColor="@color/text_light"
-                    android:textSize="14sp"
-                    android:text="−" />
-                <TextView
-                    android:id="@+id/tvTapCountValue"
-                    android:layout_width="52dp"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:text="1"
-                    android:textColor="@color/text_light"
-                    android:textSize="12sp" />
-                <Button
-                    android:id="@+id/btnTapCountPlus"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    android:minWidth="0dp"
-                    android:minHeight="0dp"
-                    android:padding="0dp"
-                    android:background="@drawable/btn_secondary"
-                    android:textColor="@color/text_light"
-                    android:textSize="14sp"
-                    android:text="+" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginTop="3dp">
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Gap between taps (ms)"
-                    android:textColor="@color/text_light"
-                    android:textSize="11sp" />
-                <Button
-                    android:id="@+id/btnTapGapMinus"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    android:minWidth="0dp"
-                    android:minHeight="0dp"
-                    android:padding="0dp"
-                    android:background="@drawable/btn_secondary"
-                    android:textColor="@color/text_light"
-                    android:textSize="14sp"
-                    android:text="−" />
-                <TextView
-                    android:id="@+id/tvTapGapValue"
-                    android:layout_width="52dp"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:text="150"
-                    android:textColor="@color/text_light"
-                    android:textSize="12sp" />
-                <Button
-                    android:id="@+id/btnTapGapPlus"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    android:minWidth="0dp"
-                    android:minHeight="0dp"
-                    android:padding="0dp"
-                    android:background="@drawable/btn_secondary"
-                    android:textColor="@color/text_light"
-                    android:textSize="14sp"
-                    android:text="+" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginTop="3dp">
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Swipe jitter (px)"
-                    android:textColor="@color/text_light"
-                    android:textSize="11sp" />
-                <Button
-                    android:id="@+id/btnJitterMinus"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    android:minWidth="0dp"
-                    android:minHeight="0dp"
-                    android:padding="0dp"
-                    android:background="@drawable/btn_secondary"
-                    android:textColor="@color/text_light"
-                    android:textSize="14sp"
-                    android:text="−" />
-                <TextView
-                    android:id="@+id/tvJitterValue"
-                    android:layout_width="52dp"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:text="0"
-                    android:textColor="@color/text_light"
-                    android:textSize="12sp" />
-                <Button
-                    android:id="@+id/btnJitterPlus"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    android:minWidth="0dp"
-                    android:minHeight="0dp"
-                    android:padding="0dp"
-                    android:background="@drawable/btn_secondary"
-                    android:textColor="@color/text_light"
-                    android:textSize="14sp"
-                    android:text="+" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginTop="3dp">
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Cycles (0 = forever)"
-                    android:textColor="@color/text_light"
-                    android:textSize="11sp" />
-                <Button
-                    android:id="@+id/btnCyclesMinus"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    android:minWidth="0dp"
-                    android:minHeight="0dp"
-                    android:padding="0dp"
-                    android:background="@drawable/btn_secondary"
-                    android:textColor="@color/text_light"
-                    android:textSize="14sp"
-                    android:text="−" />
-                <TextView
-                    android:id="@+id/tvCyclesValue"
-                    android:layout_width="52dp"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:text="0"
-                    android:textColor="@color/text_light"
-                    android:textSize="12sp" />
-                <Button
-                    android:id="@+id/btnCyclesPlus"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    android:minWidth="0dp"
-                    android:minHeight="0dp"
-                    android:padding="0dp"
-                    android:background="@drawable/btn_secondary"
-                    android:textColor="@color/text_light"
-                    android:textSize="14sp"
-                    android:text="+" />
-            </LinearLayout>
-
+                android:layout_weight="1"
+                android:text="Cycles (0=forever)"
+                android:textColor="@color/text_light"
+                android:textSize="11sp" />
+            <Button android:id="@+id/btnCyclesMinus"
+                android:layout_width="32dp" android:layout_height="32dp"
+                android:minWidth="0dp" android:minHeight="0dp" android:padding="0dp"
+                android:background="@drawable/btn_secondary"
+                android:textColor="@color/text_light" android:textSize="14sp" android:text="−" />
+            <TextView android:id="@+id/tvCyclesValue"
+                android:layout_width="52dp" android:layout_height="wrap_content"
+                android:gravity="center" android:text="0"
+                android:textColor="@color/text_light" android:textSize="12sp" />
+            <Button android:id="@+id/btnCyclesPlus"
+                android:layout_width="32dp" android:layout_height="32dp"
+                android:minWidth="0dp" android:minHeight="0dp" android:padding="0dp"
+                android:background="@drawable/btn_secondary"
+                android:textColor="@color/text_light" android:textSize="14sp" android:text="+" />
+        </LinearLayout>
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:layout_marginTop="8dp" android:text="TAP DEFAULTS"
+                android:textColor="@color/text_dim" android:textSize="10sp" android:letterSpacing="0.1" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginTop="4dp">
             <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="PROFILES"
-                android:textColor="@color/text_dim"
-                android:textSize="10sp"
-                android:letterSpacing="0.1" />
+                android:layout_weight="1"
+                android:text="Tap radius (px)"
+                android:textColor="@color/text_light"
+                android:textSize="11sp" />
+            <Button android:id="@+id/btnTapRadiusMinus"
+                android:layout_width="32dp" android:layout_height="32dp"
+                android:minWidth="0dp" android:minHeight="0dp" android:padding="0dp"
+                android:background="@drawable/btn_secondary"
+                android:textColor="@color/text_light" android:textSize="14sp" android:text="−" />
+            <TextView android:id="@+id/tvTapRadiusValue"
+                android:layout_width="52dp" android:layout_height="wrap_content"
+                android:gravity="center" android:text="0"
+                android:textColor="@color/text_light" android:textSize="12sp" />
+            <Button android:id="@+id/btnTapRadiusPlus"
+                android:layout_width="32dp" android:layout_height="32dp"
+                android:minWidth="0dp" android:minHeight="0dp" android:padding="0dp"
+                android:background="@drawable/btn_secondary"
+                android:textColor="@color/text_light" android:textSize="14sp" android:text="+" />
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginTop="4dp">
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Taps per group"
+                android:textColor="@color/text_light"
+                android:textSize="11sp" />
+            <Button android:id="@+id/btnTapCountMinus"
+                android:layout_width="32dp" android:layout_height="32dp"
+                android:minWidth="0dp" android:minHeight="0dp" android:padding="0dp"
+                android:background="@drawable/btn_secondary"
+                android:textColor="@color/text_light" android:textSize="14sp" android:text="−" />
+            <TextView android:id="@+id/tvTapCountValue"
+                android:layout_width="52dp" android:layout_height="wrap_content"
+                android:gravity="center" android:text="1"
+                android:textColor="@color/text_light" android:textSize="12sp" />
+            <Button android:id="@+id/btnTapCountPlus"
+                android:layout_width="32dp" android:layout_height="32dp"
+                android:minWidth="0dp" android:minHeight="0dp" android:padding="0dp"
+                android:background="@drawable/btn_secondary"
+                android:textColor="@color/text_light" android:textSize="14sp" android:text="+" />
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginTop="4dp">
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Gap between taps (ms)"
+                android:textColor="@color/text_light"
+                android:textSize="11sp" />
+            <Button android:id="@+id/btnTapGapMinus"
+                android:layout_width="32dp" android:layout_height="32dp"
+                android:minWidth="0dp" android:minHeight="0dp" android:padding="0dp"
+                android:background="@drawable/btn_secondary"
+                android:textColor="@color/text_light" android:textSize="14sp" android:text="−" />
+            <TextView android:id="@+id/tvTapGapValue"
+                android:layout_width="52dp" android:layout_height="wrap_content"
+                android:gravity="center" android:text="150"
+                android:textColor="@color/text_light" android:textSize="12sp" />
+            <Button android:id="@+id/btnTapGapPlus"
+                android:layout_width="32dp" android:layout_height="32dp"
+                android:minWidth="0dp" android:minHeight="0dp" android:padding="0dp"
+                android:background="@drawable/btn_secondary"
+                android:textColor="@color/text_light" android:textSize="14sp" android:text="+" />
+        </LinearLayout>
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:layout_marginTop="8dp" android:text="SWIPE DEFAULTS"
+                android:textColor="@color/text_dim" android:textSize="10sp" android:letterSpacing="0.1" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginTop="4dp">
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Swipe duration (ms)"
+                android:textColor="@color/text_light"
+                android:textSize="11sp" />
+            <Button android:id="@+id/btnSwipeDurMinus"
+                android:layout_width="32dp" android:layout_height="32dp"
+                android:minWidth="0dp" android:minHeight="0dp" android:padding="0dp"
+                android:background="@drawable/btn_secondary"
+                android:textColor="@color/text_light" android:textSize="14sp" android:text="−" />
+            <TextView android:id="@+id/tvSwipeDurValue"
+                android:layout_width="52dp" android:layout_height="wrap_content"
+                android:gravity="center" android:text="300"
+                android:textColor="@color/text_light" android:textSize="12sp" />
+            <Button android:id="@+id/btnSwipeDurPlus"
+                android:layout_width="32dp" android:layout_height="32dp"
+                android:minWidth="0dp" android:minHeight="0dp" android:padding="0dp"
+                android:background="@drawable/btn_secondary"
+                android:textColor="@color/text_light" android:textSize="14sp" android:text="+" />
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginTop="4dp">
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Swipe jitter (px)"
+                android:textColor="@color/text_light"
+                android:textSize="11sp" />
+            <Button android:id="@+id/btnSwipeJitterMinus"
+                android:layout_width="32dp" android:layout_height="32dp"
+                android:minWidth="0dp" android:minHeight="0dp" android:padding="0dp"
+                android:background="@drawable/btn_secondary"
+                android:textColor="@color/text_light" android:textSize="14sp" android:text="−" />
+            <TextView android:id="@+id/tvSwipeJitterValue"
+                android:layout_width="52dp" android:layout_height="wrap_content"
+                android:gravity="center" android:text="0"
+                android:textColor="@color/text_light" android:textSize="12sp" />
+            <Button android:id="@+id/btnSwipeJitterPlus"
+                android:layout_width="32dp" android:layout_height="32dp"
+                android:minWidth="0dp" android:minHeight="0dp" android:padding="0dp"
+                android:background="@drawable/btn_secondary"
+                android:textColor="@color/text_light" android:textSize="14sp" android:text="+" />
+        </LinearLayout>
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:layout_marginTop="8dp" android:text="WAIT DEFAULT"
+                android:textColor="@color/text_dim" android:textSize="10sp" android:letterSpacing="0.1" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginTop="4dp">
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Wait step default (ms)"
+                android:textColor="@color/text_light"
+                android:textSize="11sp" />
+            <Button android:id="@+id/btnWaitMinus"
+                android:layout_width="32dp" android:layout_height="32dp"
+                android:minWidth="0dp" android:minHeight="0dp" android:padding="0dp"
+                android:background="@drawable/btn_secondary"
+                android:textColor="@color/text_light" android:textSize="14sp" android:text="−" />
+            <TextView android:id="@+id/tvWaitValue"
+                android:layout_width="52dp" android:layout_height="wrap_content"
+                android:gravity="center" android:text="500"
+                android:textColor="@color/text_light" android:textSize="12sp" />
+            <Button android:id="@+id/btnWaitPlus"
+                android:layout_width="32dp" android:layout_height="32dp"
+                android:minWidth="0dp" android:minHeight="0dp" android:padding="0dp"
+                android:background="@drawable/btn_secondary"
+                android:textColor="@color/text_light" android:textSize="14sp" android:text="+" />
+        </LinearLayout>
+<TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:layout_marginTop="8dp" android:text="PROFILES"
+                android:textColor="@color/text_dim" android:textSize="10sp" android:letterSpacing="0.1" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -581,12 +482,9 @@
                     android:id="@+id/btnProfilePrev"
                     android:layout_width="32dp"
                     android:layout_height="32dp"
-                    android:minWidth="0dp"
-                    android:minHeight="0dp"
-                    android:padding="0dp"
+                    android:minWidth="0dp" android:minHeight="0dp" android:padding="0dp"
                     android:background="@drawable/btn_secondary"
-                    android:textColor="@color/text_light"
-                    android:textSize="12sp"
+                    android:textColor="@color/text_light" android:textSize="12sp"
                     android:text="◀" />
 
                 <TextView
@@ -603,12 +501,9 @@
                     android:id="@+id/btnProfileNext"
                     android:layout_width="32dp"
                     android:layout_height="32dp"
-                    android:minWidth="0dp"
-                    android:minHeight="0dp"
-                    android:padding="0dp"
+                    android:minWidth="0dp" android:minHeight="0dp" android:padding="0dp"
                     android:background="@drawable/btn_secondary"
-                    android:textColor="@color/text_light"
-                    android:textSize="12sp"
+                    android:textColor="@color/text_light" android:textSize="12sp"
                     android:text="▶" />
             </LinearLayout>
 
@@ -618,34 +513,43 @@
                 android:orientation="horizontal"
                 android:layout_marginTop="6dp">
 
-                <Button
-                    android:id="@+id/btnLoadProfile"
-                    android:layout_width="0dp"
-                    android:layout_height="32dp"
-                    android:layout_weight="1"
-                    android:minHeight="0dp"
+                <Button android:id="@+id/btnLoadProfile"
+                    android:layout_width="0dp" android:layout_height="32dp"
+                    android:layout_weight="1" android:minHeight="0dp"
                     android:background="@drawable/btn_secondary"
-                    android:text="Load"
-                    android:textAllCaps="false"
-                    android:textColor="@color/text_light"
-                    android:textSize="12sp" />
+                    android:text="Load" android:textAllCaps="false"
+                    android:textColor="@color/text_light" android:textSize="11sp" />
 
-                <Button
-                    android:id="@+id/btnDeleteProfile"
-                    android:layout_width="0dp"
-                    android:layout_height="32dp"
-                    android:layout_weight="1"
-                    android:layout_marginStart="6dp"
-                    android:minHeight="0dp"
+                <Button android:id="@+id/btnDeleteProfile"
+                    android:layout_width="0dp" android:layout_height="32dp"
+                    android:layout_weight="1" android:layout_marginStart="4dp" android:minHeight="0dp"
                     android:background="@drawable/btn_danger"
-                    android:text="Delete"
-                    android:textAllCaps="false"
-                    android:textColor="@color/text_light"
-                    android:textSize="12sp" />
+                    android:text="Delete" android:textAllCaps="false"
+                    android:textColor="@color/text_light" android:textSize="11sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="4dp">
+
+                <Button android:id="@+id/btnExportProfile"
+                    android:layout_width="0dp" android:layout_height="32dp"
+                    android:layout_weight="1" android:minHeight="0dp"
+                    android:background="@drawable/btn_secondary"
+                    android:text="Copy (share)" android:textAllCaps="false"
+                    android:textColor="@color/text_light" android:textSize="11sp" />
+
+                <Button android:id="@+id/btnImportProfile"
+                    android:layout_width="0dp" android:layout_height="32dp"
+                    android:layout_weight="1" android:layout_marginStart="4dp" android:minHeight="0dp"
+                    android:background="@drawable/btn_primary"
+                    android:text="Paste import" android:textAllCaps="false"
+                    android:textColor="@color/text_light" android:textSize="11sp" />
             </LinearLayout>
         </LinearLayout>
 
-        <!-- Start / Stop -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -655,7 +559,7 @@
             <Button
                 android:id="@+id/btnStart"
                 android:layout_width="0dp"
-                android:layout_height="40dp"
+                android:layout_height="42dp"
                 android:layout_weight="1"
                 android:minHeight="0dp"
                 android:background="@drawable/btn_primary"
@@ -668,7 +572,7 @@
             <Button
                 android:id="@+id/btnStop"
                 android:layout_width="0dp"
-                android:layout_height="40dp"
+                android:layout_height="42dp"
                 android:layout_weight="1"
                 android:layout_marginStart="6dp"
                 android:minHeight="0dp"
@@ -682,16 +586,15 @@
         </LinearLayout>
     </LinearLayout>
 
-    <!-- Minimized bubble -->
     <TextView
         android:id="@+id/bubbleView"
-        android:layout_width="52dp"
-        android:layout_height="52dp"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
         android:background="@drawable/bubble_bg"
         android:gravity="center"
         android:text="▶"
         android:textColor="@color/text_light"
-        android:textSize="18sp"
+        android:textSize="16sp"
         android:textStyle="bold"
         android:visibility="gone" />
 </FrameLayout>

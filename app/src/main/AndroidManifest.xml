@@ -44,5 +44,11 @@
                 android:value="Floating on-screen automation controls" />
         </service>
 
+    
+        <activity
+            android:name=".ImportActivity"
+            android:exported="false"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"
+            android:excludeFromRecents="true" />
     </application>
 </manifest>

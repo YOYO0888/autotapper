@@ -1,12 +1,13 @@
 package com.frameworkstudios.autotapper
 
 import android.content.Context
+import org.json.JSONArray
 import org.json.JSONObject
 
 /**
- * Persists the panel state and named profiles as JSON in SharedPreferences.
- * "last" is the auto-saved current state (restored whenever the panel opens);
- * "profiles" is a map of user-named presets.
+ * Persists panel state and named profiles. v3: profile schema is
+ *   { "name": "...", "steps": [...], "loopIntervalMs": N, "cycles": N }
+ * where "steps" is a list of Step JSON blobs.
  */
 class ProfileStore(context: Context) {
 
@@ -28,7 +29,8 @@ class ProfileStore(context: Context) {
 
     fun saveProfile(name: String, state: JSONObject) {
         val all = profilesJson()
-        all.put(name, state)
+        val stored = JSONObject(state.toString()).apply { put("name", name) }
+        all.put(name, stored)
         prefs.edit().putString(KEY_PROFILES, all.toString()).apply()
     }
 
@@ -46,7 +48,7 @@ class ProfileStore(context: Context) {
             ?: JSONObject()
 
     private companion object {
-        const val KEY_LAST = "last_state"
-        const val KEY_PROFILES = "profiles"
+        const val KEY_LAST = "last_state_v3"
+        const val KEY_PROFILES = "profiles_v3"
     }
 }
